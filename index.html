@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>INTERVIEW SESSION</title>
+    <style>
+        body {
+        background-color: #6daca1;
+        text-align:center;
+        font-family:Ink Free;
+        }
+
+        .message {
+        border: 2px solid #b88040;
+        border-radius: 5px;
+        box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.5);
+        padding: 15px;
+        color: #f0f7f6;
+        background-color: #775f5f;
+        }
+
+        #user-input {
+            background-color: #6daca1;
+        }
+
+        #user-input-text,
+        select {
+        background-color: #e8e9b0;
+        border: 1px solid #050505;
+        border-radius: 5px;
+        padding: 5px;
+        }
+
+        button {
+        background-color: #93C571;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        padding: 10px 20px;
+        cursor: pointer;
+        }
+
+        /* Add styles for highlighting */
+        span.highlight {
+        background-color: #caa734;
+        }
+
+/* ... (rest of your styles) */
+
+
+        #exit-button {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: red;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>INTERVIEW SESSION</h1>
+
+    <form>
+        <!-- Add the two drop-down boxes -->
+        <label for="topic"> <b> Select Field: </b> </label>
+        <select id="topic" name="topic">
+            <option value="python">IT Field</option>
+            <option value="javascript">Medical Field</option>
+            <option value="java">AIML</option>
+            <!-- Add more options as needed -->
+        </select>
+
+        &nbsp; &nbsp; &nbsp;
+
+        <label for="language"> <b> Select Language: </b> </label>
+        <select id="language" name="language">
+            <option value="english">English</option>
+            <option value="spanish">Spanish</option>
+            <option value="french">French</option>
+            <!-- Add more options as needed -->
+        </select>
+    </form>
+    <br> 
+    <br>
+    <br>
+
+    <!-- Add the following line to create the 'conversation' div -->
+    <div id="conversation"></div>
+
+
+    <form action="/process" method="post" id="user-input">
+        <input type="text" id="user-input-text" name="user-input-text" placeholder="Type your response here">
+        <br> <br>
+        <button type="submit">Get Started</button>
+    </form>
+
+    <!-- Add the script tag for Socket.IO library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.3/socket.io.js"></script>
+
+    <script>
+        var socket = io.connect('http://' + document.domain + ':' + location.port + '/');
+
+        function updateConversation(conversation) {
+            var conversationDiv = document.getElementById('conversation');
+
+            if (conversationDiv) {
+                conversationDiv.innerHTML = '';
+
+                conversation.forEach(function (entry) {
+                    var messageDiv = document.createElement('div');
+                    messageDiv.className = 'message';
+
+                    var assistantParagraph = document.createElement('p');
+                    assistantParagraph.innerHTML = '<strong>Interviewer:</strong> ' + entry.assistant;
+                    messageDiv.appendChild(assistantParagraph);
+
+                    var userParagraph = document.createElement('p');
+                    userParagraph.innerHTML = '<strong>User:</strong> ' + entry.user;
+                    messageDiv.appendChild(userParagraph);
+
+                    // Display the grade along with user and assistant messages
+                    var gradeParagraph = document.createElement('p');
+                    gradeParagraph.innerHTML = '<strong>Grade:</strong> ' + entry.grade;
+                    messageDiv.appendChild(gradeParagraph);
+
+                    conversationDiv.appendChild(messageDiv);
+
+                    // Log the grade to the console
+                    console.log(entry.grade);
+                });
+            }
+        }
+
+
+        function highlightText(paragraph, text) {
+            var words = text.split(' ');
+            var html = '';
+
+            for (var i = 0; i < words.length; i++) {
+                html += '<span>' + words[i] + '</span> ';
+            }
+
+            paragraph.innerHTML = html;
+
+            var spans = paragraph.querySelectorAll('span');
+            var index = 0;
+
+            function highlightNextWord() {
+                if (index < spans.length) {
+                    spans[index].classList.add('highlight');
+                    index++;
+                    setTimeout(highlightNextWord, 305); // Adjust the duration as needed (increased to 305ms)
+                }
+            }
+
+            highlightNextWord();
+        }
+
+        socket.on('connect', function () {
+            socket.emit('get_conversation');
+        });
+
+        socket.on('update_conversation', function (data) {
+            updateConversation(data.conversation);        
+        
+        });
+    </script>
+</body>
+</html>
