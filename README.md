@@ -33,5 +33,7 @@ pyttsx3
 
 ## Endpoints
 GET /: Renders the main application page.
+
 POST /process: Processes user input, generates AI responses, and updates conversations and grades.
+
 GET /exit: Exits the application and stops the SocketIO server.
